@@ -13,25 +13,31 @@ export default function Login() {
   const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value })
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
-    setLoading(true)
-    setError('')
-    try {
-      const response = await loginUser(form)
-      localStorage.setItem('token', response.data.access_token)
-      navigate('/dashboard')
-    } catch (err) {
-      setError(err.response?.data?.message || 'Invalid email or password')
-    } finally {
-      setLoading(false)
-    }
+  e.preventDefault()
+  setLoading(true)
+  setError('')
+
+  try {
+    const response = await loginUser(form)
+
+    localStorage.setItem('token', response.data.access_token)
+
+    localStorage.setItem('user', JSON.stringify(response.data.user))
+
+    navigate('/dashboard')
+
+  } catch (err) {
+    setError(err.response?.data?.message || 'Invalid email or password')
+  } finally {
+    setLoading(false)
   }
+}
 
   return (
     <div className="auth-page">
       <video autoPlay muted loop playsInline className="bg-video">
-  <source src={bgVideo} type="video/mp4" />
-</video>
+      <source src={bgVideo} type="video/mp4" />
+      </video>
       <div className="auth-card">
         <div className="auth-logo">
           <h1>reVerify</h1>
