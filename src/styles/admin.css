@@ -1,0 +1,75 @@
+.admin-container {
+  padding: 30px;
+  background: #f8fafc;
+  min-height: 100vh;
+  font-family: Arial, sans-serif;
+}
+
+.admin-container h1 {
+  margin-bottom: 20px;
+  color: #111;
+}
+
+section {
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  margin-bottom: 30px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+}
+
+/* TABLE */
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+}
+
+.table th,
+.table td {
+  padding: 12px;
+  border-bottom: 1px solid #eee;
+  text-align: left;
+}
+
+.table th {
+  background: #f1f5f9;
+  font-weight: 600;
+}
+
+/* BUTTONS */
+button {
+  padding: 6px 10px;
+  margin-right: 6px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+button:hover {
+  opacity: 0.85;
+}
+
+button:first-of-type {
+  background: #16a34a;
+  color: white;
+}
+
+button:last-of-type {
+  background: #16a34a;
+  color: white;
+}
+
+/* LAW FORM */
+input {
+  padding: 10px;
+  margin-right: 10px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  width: 250px;
+}
+
+form {
+  margin-bottom: 15px;
+}

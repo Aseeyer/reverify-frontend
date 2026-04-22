@@ -52,6 +52,10 @@
   position: relative;
   z-index: 10;
 }
+.logo {
+  height: 150px; /* Adjust as needed */
+  width: auto;
+}
 
 /* LOGO */
 

@@ -32,3 +32,21 @@ export const getDocumentsByVehicleId = (vehicleId) => api.get(`/documents/vehicl
 export const addDocument = (data) => api.post('/documents/add', data)
 export const getVehicleByPlateNumber = (plateNumber) => api.get(`/vehicles/plate/${plateNumber}`)
 export const registerVehicle = (data) => api.post('/vehicles/register', data)
+export const getAllUsers = () => api.get('/admin/users')
+
+export const getOfficers = () => api.get('/admin/officers')
+
+export const promoteToOfficer = (id) =>
+  api.put(`/admin/make-officer/${id}`)
+
+export const deleteUser = (id) =>
+  api.delete(`/admin/users/${id}`)
+
+
+export const getLaws = () => api.get('/laws')
+
+export const createLaw = (data) => api.post('/laws', data)
+
+export const updateLaw = (id, data) => api.put(`/laws/${id}`, data)
+
+export const deleteLaw = (id) => api.delete(`/laws/${id}`)

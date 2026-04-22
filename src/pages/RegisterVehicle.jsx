@@ -166,7 +166,7 @@ export default function RegisterVehicle() {
         </form>
 
         <p className="auth-footer">
-          Back to <Link to="/dashboard">Dashboard</Link>
+          Back to <Link to="/driver">DriverDashboard</Link>
         </p>
 
       </div>

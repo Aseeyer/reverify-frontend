@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useNavigate, Link, NavLink } from 'react-router-dom'
 import { getVehicleByPlateNumber, getDocumentsByVehicleId } from '../services/api'
 import '../styles/dashboard.css'
+import logo from '../assets/logo.jpg'
 
 const documentTypes = [
 { type: 'VEHICLE_LICENSE', label: 'Vehicle License', icon: '🪪' },
@@ -15,7 +16,7 @@ export default function Dashboard() {
 const navigate = useNavigate()
 
 const [plateNumber, setPlateNumber] = useState('')
-const [vehicle, setVehicle] = useState(null) // ✅ NEW
+const [vehicle, setVehicle] = useState(null) 
 const [documents, setDocuments] = useState([])
 const [loading, setLoading] = useState(false)
 const [error, setError] = useState('')
@@ -45,7 +46,7 @@ try {
   const vehicleRes = await getVehicleByPlateNumber(plateNumber.toUpperCase())
 
   const vehicleData = vehicleRes.data
-  setVehicle(vehicleData) // ✅ STORE VEHICLE
+  setVehicle(vehicleData) 
 
   const docsRes = await getDocumentsByVehicleId(vehicleData.id)
   setDocuments(docsRes.data)
@@ -54,7 +55,7 @@ try {
 } catch (err) {
   setError('Vehicle not found or no documents available')
   setDocuments([])
-  setVehicle(null) // ✅ reset
+  setVehicle(null)
   setSearched(true)
 } finally {
   setLoading(false)
@@ -84,9 +85,13 @@ return ( <div className="dashboard">
 
 
   <header className="dashboard-header">
+    <div className="logo-container">
+        <img src={logo} alt="Company Logo" className="logo" />
+      </div>
+    
     <div className="header-logo">
       reVerify
-      <span>Road Document System</span><br />
+      <span>Road Document System</span>
       <small className="welcome-text">
         Welcome, {user?.firstName}
       </small>

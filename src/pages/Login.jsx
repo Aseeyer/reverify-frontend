@@ -13,25 +13,28 @@ export default function Login() {
   const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value })
 
   const handleSubmit = async (e) => {
-  e.preventDefault()
-  setLoading(true)
-  setError('')
+    e.preventDefault()
+    setLoading(true)
+    setError('')
 
-  try {
-    const response = await loginUser(form)
+    try {
+      const response = await loginUser(form)
 
-    localStorage.setItem('token', response.data.access_token)
+      const user = response.data.user
 
-    localStorage.setItem('user', JSON.stringify(response.data.user))
+localStorage.setItem('token', response.data.access_token)
+localStorage.setItem('user', JSON.stringify(user))
 
-    navigate('/dashboard')
+if (user.role === 'ADMIN') navigate('/admin')
+else if (user.role === 'OFFICER') navigate('/officer')
+else navigate('/driver')
 
-  } catch (err) {
-    setError(err.response?.data?.message || 'Invalid email or password')
-  } finally {
-    setLoading(false)
+    } catch (err) {
+      setError(err.response?.data?.message || 'Invalid email or password')
+    } finally {
+      setLoading(false)
+    }
   }
-}
 
   return (
     <div className="auth-page">
