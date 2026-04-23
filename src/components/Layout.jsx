@@ -17,7 +17,8 @@ export default function Layout({ children, role }) {
   const navItems = {
     DRIVER: [
       { path: '/driver', label: 'Dashboard', icon: '📊' },
-      { path: '/register-vehicle', label: 'My Vehicles', icon: '🚗' },
+      { path: '/my-vehicles', label: 'My Vehicles', icon: '🚗' },
+      { path: '/add-document', label: 'Documents', icon: '📄' },
       { path: '/violations', label: 'Violations', icon: '⚖️' },
       { path: '/laws', label: 'Traffic Laws', icon: '📖' },
       { path: '/profile', label: 'My Profile', icon: '👤' },
