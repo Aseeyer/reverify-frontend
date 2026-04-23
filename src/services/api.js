@@ -36,6 +36,7 @@ export const registerUser = (data) => api.post('/auth/register', data)
 export const getDriverDashboard = () => api.get('/driver/dashboard')
 export const getMyVehicles = () => api.get('/driver/vehicles')
 export const registerVehicle = (data) => api.post('/driver/vehicles', data)
+export const getMyDocuments = () => api.get('/driver/documents')
 export const addDocument = (data) => api.post('/driver/documents', data)
 export const getMyViolations = () => api.get('/driver/violations')
 export const getViolations = getMyViolations // Alias
