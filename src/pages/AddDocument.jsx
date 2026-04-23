@@ -1,148 +1,160 @@
 import { useState } from 'react'
 import { addDocument } from '../services/api'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
+import Layout from '../components/Layout'
 import toast from 'react-hot-toast'
-import '../styles/login.css'
+import '../styles/dashboard.css'
 
 export default function AddDocument() {
-const navigate = useNavigate()
+  const navigate = useNavigate()
+  const location = useLocation()
+  const user = JSON.parse(localStorage.getItem('user'))
+  const initialVehicleId = location.state?.vehicleId || ''
 
-const [form, setForm] = useState({
-vehicleId: '',
-documentType: '',
-documentReferenceNumber: '',
-issuingAuthority: '',
-issuedDate: '',
-expiryDate: ''
-})
-
-const [loading, setLoading] = useState(false)
-
-const handleChange = (e) => {
-setForm({ ...form, [e.target.name]: e.target.value })
-}
-
-const handleSubmit = async (e) => {
-e.preventDefault()
-setLoading(true)
-
-
-try {
-  await addDocument({
-    ...form,
-    issuedDate: new Date(form.issuedDate).toISOString(),
-    expiryDate: new Date(form.expiryDate).toISOString()
+  const [form, setForm] = useState({
+    vehicleId: initialVehicleId,
+    documentType: '',
+    documentReferenceNumber: '',
+    issuingAuthority: '',
+    issuedDate: '',
+    expiryDate: ''
   })
 
-  toast.success('Document added successfully')
-  navigate('/dashboard')
+  const [loading, setLoading] = useState(false)
 
-} catch (err) {
-  const msg =
-    err.response?.data?.details ||
-    err.response?.data?.error ||
-    'Failed to add document'
+  const handleChange = (e) => {
+    setForm({ ...form, [e.target.name]: e.target.value })
+  }
 
-  toast.error(typeof msg === 'string' ? msg : JSON.stringify(msg))
-} finally {
-  setLoading(false)
-}
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    setLoading(true)
 
+    try {
+      await addDocument({
+        ...form,
+        issuedDate: new Date(form.issuedDate).toISOString(),
+        expiryDate: new Date(form.expiryDate).toISOString()
+      })
 
-}
+      toast.success('Document added successfully 📑')
+      setTimeout(() => { navigate('/driver') }, 1500)
 
-return ( <div className="auth-page"> <div className="auth-card register-card">
+    } catch (err) {
+      console.error(err)
+    } finally {
+      setLoading(false)
+    }
+  }
 
-```
-    <div className="auth-logo">
-      <h1>reVerify</h1>
-      <span>Add Document</span>
-    </div>
+  return (
+    <Layout role={user?.role}>
+      <div className="content-wrapper">
+        <header style={{ marginBottom: '2rem' }}>
+          <h1 style={{ fontSize: '1.75rem', fontWeight: 700, color: 'var(--text-main)' }}>
+            Upload Document
+          </h1>
+          <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem' }}>
+            Attach official road documents to your vehicle for digital verification.
+          </p>
+        </header>
 
-    <form className="auth-form" onSubmit={handleSubmit}>
+        <section className="stat-card" style={{ maxWidth: '600px', animation: 'slideUp 0.4s ease-out' }}>
+          <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+            <div className="form-group">
+              <label style={{ display: 'block', marginBottom: '8px', fontWeight: 600, fontSize: '0.85rem' }}>Vehicle ID / Plate Reference</label>
+              <input
+                className="premium-input"
+                name="vehicleId"
+                value={form.vehicleId}
+                onChange={handleChange}
+                placeholder="Enter vehicle reference"
+                required
+              />
+            </div>
 
-      <div className="form-group">
-        <label>Vehicle ID</label>
-        <input
-          className="form-input"
-          name="vehicleId"
-          value={form.vehicleId}
-          onChange={handleChange}
-          required
-        />
+            <div className="form-group">
+              <label style={{ display: 'block', marginBottom: '8px', fontWeight: 600, fontSize: '0.85rem' }}>Document Type</label>
+              <select
+                className="premium-input"
+                name="documentType"
+                value={form.documentType}
+                onChange={handleChange}
+                required
+                style={{ width: '100%' }}
+              >
+                <option value="">Select document type...</option>
+                <option value="VEHICLE_LICENSE">Vehicle License</option>
+                <option value="ROAD_WORTHINESS">Road Worthiness</option>
+                <option value="INSURANCE">Insurance</option>
+                <option value="PROOF_OF_OWNERSHIP">Proof of Ownership</option>
+                <option value="HACKNEY_PERMIT">Hackney Permit</option>
+              </select>
+            </div>
+
+            <div className="form-group">
+              <label style={{ display: 'block', marginBottom: '8px', fontWeight: 600, fontSize: '0.85rem' }}>Reference Number / Certificate ID</label>
+              <input
+                className="premium-input"
+                name="documentReferenceNumber"
+                value={form.documentReferenceNumber}
+                onChange={handleChange}
+                placeholder="e.g. V-12345678"
+                required
+              />
+            </div>
+
+            <div className="form-group">
+              <label style={{ display: 'block', marginBottom: '8px', fontWeight: 600, fontSize: '0.85rem' }}>Issuing Authority</label>
+              <input
+                className="premium-input"
+                name="issuingAuthority"
+                value={form.issuingAuthority}
+                onChange={handleChange}
+                placeholder="e.g. FRSC / VIO"
+                required
+              />
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+              <div className="form-group">
+                <label style={{ display: 'block', marginBottom: '8px', fontWeight: 600, fontSize: '0.85rem' }}>Issued Date</label>
+                <input
+                  type="date"
+                  className="premium-input"
+                  name="issuedDate"
+                  value={form.issuedDate}
+                  onChange={handleChange}
+                  required
+                  style={{ width: '100%' }}
+                />
+              </div>
+
+              <div className="form-group">
+                <label style={{ display: 'block', marginBottom: '8px', fontWeight: 600, fontSize: '0.85rem' }}>Expiry Date</label>
+                <input
+                  type="date"
+                  className="premium-input"
+                  name="expiryDate"
+                  value={form.expiryDate}
+                  onChange={handleChange}
+                  required
+                  style={{ width: '100%' }}
+                />
+              </div>
+            </div>
+
+            <div style={{ marginTop: '1rem', display: 'flex', gap: '1rem' }}>
+              <button className="premium-btn" type="submit" disabled={loading} style={{ flex: 2, padding: '14px' }}>
+                {loading ? 'Processing...' : 'Upload Document'}
+              </button>
+              <button className="premium-btn" type="button" onClick={() => navigate('/driver')} style={{ background: '#f1f5f9', color: 'var(--text-secondary)', flex: 1 }}>
+                Cancel
+              </button>
+            </div>
+          </form>
+        </section>
       </div>
-
-      <div className="form-group">
-        <label>Document Type</label>
-        <select
-          className="form-input"
-          name="documentType"
-          value={form.documentType}
-          onChange={handleChange}
-          required
-        >
-          <option value="">Select type</option>
-          <option value="VEHICLE_LICENSE">Vehicle License</option>
-          <option value="ROAD_WORTHINESS">Road Worthiness</option>
-          <option value="INSURANCE">Insurance</option>
-          <option value="PROOF_OF_OWNERSHIP">Proof of Ownership</option>
-          <option value="HACKNEY_PERMIT">Hackney Permit</option>
-        </select>
-      </div>
-
-      <div className="form-group">
-        <label>Reference Number</label>
-        <input
-          className="form-input"
-          name="documentReferenceNumber"
-          value={form.documentReferenceNumber}
-          onChange={handleChange}
-          required
-        />
-      </div>
-
-      <div className="form-group">
-        <label>Issuing Authority</label>
-        <input
-          className="form-input"
-          name="issuingAuthority"
-          value={form.issuingAuthority}
-          onChange={handleChange}
-          required
-        />
-      </div>
-
-      <div className="form-group">
-        <label>Issued Date</label>
-        <input
-          type="datetime-local"
-          className="form-input"
-          name="issuedDate"
-          value={form.issuedDate}
-          onChange={handleChange}
-          required
-        />
-      </div>
-
-      <div className="form-group">
-        <label>Expiry Date</label>
-        <input
-          type="datetime-local"
-          className="form-input"
-          name="expiryDate"
-          value={form.expiryDate}
-          onChange={handleChange}
-          required
-        />
-      </div>
-
-      <button className="btn-primary" disabled={loading}>
-        {loading ? 'Adding...' : 'Add Document'}
-      </button>
-
-    </form>
-
-  </div>
-</div>
-)
+    </Layout>
+  )
 }

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { registerUser } from '../services/api'
+import { registerUser, verifyNINExternal } from '../services/api'
 import { useNavigate, Link } from 'react-router-dom'
 import '../styles/login.css'
 import '../styles/register.css'
@@ -12,6 +12,8 @@ export default function Register() {
   })
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+  const [verifyingNIN, setVerifyingNIN] = useState(false)
+  const [ninVerified, setNinVerified] = useState(false)
 
   const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value })
 
@@ -26,6 +28,33 @@ export default function Register() {
       setError(JSON.stringify(err.response?.data) || 'Registration failed')
     } finally {
       setLoading(false)
+    }
+  }
+
+  const handleVerifyNIN = async () => {
+    if (form.nin.length !== 11) {
+      setError('NIN must be 11 digits')
+      return
+    }
+    setVerifyingNIN(true)
+    setError('')
+    try {
+      const res = await verifyNINExternal(form.nin)
+      // If successful, we might get back user data
+      if (res.data?.status === 'success' || res.data?.data) {
+        const data = res.data.data
+        setForm({
+          ...form,
+          firstName: data.firstName || form.firstName,
+          lastName: data.lastName || form.lastName,
+        })
+        setNinVerified(true)
+        setError('')
+      }
+    } catch (err) {
+      setError('Could not verify NIN. Please check the number and try again.')
+    } finally {
+      setVerifyingNIN(false)
     }
   }
 
@@ -69,9 +98,37 @@ export default function Register() {
               value={form.phoneNumber} onChange={handleChange} required />
           </div>
           <div className="form-group">
-            <label>NIN</label>
-            <input className="form-input" name="nin" placeholder="11-digit NIN"
-              value={form.nin} onChange={handleChange} required />
+            <label>NIN (11 Digits)</label>
+            <div style={{ display: 'flex', gap: '8px' }}>
+              <input 
+                className="form-input" 
+                name="nin" 
+                placeholder="11-digit NIN"
+                value={form.nin} 
+                onChange={handleChange} 
+                required 
+                disabled={ninVerified}
+              />
+              <button 
+                type="button" 
+                className="btn-verify" 
+                onClick={handleVerifyNIN}
+                disabled={verifyingNIN || ninVerified || form.nin.length !== 11}
+                style={{
+                  background: ninVerified ? '#10b981' : 'var(--accent-green)',
+                  color: 'white',
+                  padding: '0 12px',
+                  borderRadius: '6px',
+                  border: 'none',
+                  fontSize: '0.8rem',
+                  cursor: 'pointer',
+                  minWidth: '80px'
+                }}
+              >
+                {verifyingNIN ? '...' : ninVerified ? '✓' : 'Verify'}
+              </button>
+            </div>
+            {ninVerified && <small style={{ color: '#10b981', marginTop: '4px', display: 'block' }}>NIN Identity Verified</small>}
           </div>
           <div className="form-group">
             <label>Password</label>

@@ -9,6 +9,7 @@ import Violations from './pages/Violations'
 import Laws from './pages/Laws'
 import RegisterVehicle from './pages/RegisterVehicle'
 import AddDocument from './pages/AddDocument'
+import Profile from './pages/Profile'
 
 import ProtectedRoute from './components/ProtectedRoute'
 
@@ -59,6 +60,7 @@ function App() {
         <Route path="/laws" element={<Laws />} />
         <Route path="/register-vehicle" element={<RegisterVehicle />} />
         <Route path="/add-document" element={<AddDocument />} />
+        <Route path="/profile" element={<Profile />} />
       </Routes>
     </BrowserRouter>
   )
