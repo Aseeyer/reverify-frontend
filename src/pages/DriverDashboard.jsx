@@ -1,215 +1,179 @@
 import { useEffect, useState } from 'react'
-import { useNavigate, Link, NavLink } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { getVehicleByPlateNumber, getDocumentsByVehicleId } from '../services/api'
+import Layout from '../components/Layout'
+import toast from 'react-hot-toast'
 import '../styles/dashboard.css'
-import logo from '../assets/logo.jpg'
 
 const documentTypes = [
-{ type: 'VEHICLE_LICENSE', label: 'Vehicle License', icon: '🪪' },
-{ type: 'ROAD_WORTHINESS', label: 'Road Worthiness', icon: '🔧' },
-{ type: 'INSURANCE', label: 'Insurance', icon: '🛡️' },
-{ type: 'PROOF_OF_OWNERSHIP', label: 'Proof of Ownership', icon: '📄' },
-{ type: 'HACKNEY_PERMIT', label: 'Hackney Permit', icon: '🚕' },
+  { type: 'VEHICLE_LICENSE', label: 'Vehicle License', icon: '🪪' },
+  { type: 'ROAD_WORTHINESS', label: 'Road Worthiness', icon: '🔧' },
+  { type: 'INSURANCE', label: 'Insurance', icon: '🛡️' },
+  { type: 'PROOF_OF_OWNERSHIP', label: 'Proof of Ownership', icon: '📄' },
+  { type: 'HACKNEY_PERMIT', label: 'Hackney Permit', icon: '🚕' },
 ]
 
-export default function Dashboard() {
-const navigate = useNavigate()
+export default function DriverDashboard() {
+  const navigate = useNavigate()
+  const [plateNumber, setPlateNumber] = useState('')
+  const [vehicle, setVehicle] = useState(null)
+  const [documents, setDocuments] = useState([])
+  const [loading, setLoading] = useState(false)
+  const [searched, setSearched] = useState(false)
 
-const [plateNumber, setPlateNumber] = useState('')
-const [vehicle, setVehicle] = useState(null) 
-const [documents, setDocuments] = useState([])
-const [loading, setLoading] = useState(false)
-const [error, setError] = useState('')
-const [searched, setSearched] = useState(false)
+  const user = JSON.parse(localStorage.getItem('user'))
 
-const user = JSON.parse(localStorage.getItem('user'))
+  useEffect(() => {
+    const token = localStorage.getItem('token')
+    if (!token) navigate('/')
+  }, [navigate])
 
-useEffect(() => {
-const token = localStorage.getItem('token')
-if (!token) navigate('/')
-}, [navigate])
+  const handleSearch = async (e) => {
+    e.preventDefault()
+    setLoading(true)
+    setSearched(false)
 
-const handleLogout = () => {
-localStorage.removeItem('token')
-localStorage.removeItem('user')
-navigate('/')
-}
+    try {
+      const vehicleRes = await getVehicleByPlateNumber(plateNumber.toUpperCase())
+      const vehicleData = vehicleRes.data
+      setVehicle(vehicleData)
 
-const handleSearch = async (e) => {
-e.preventDefault()
-setLoading(true)
-setError('')
-setSearched(false)
+      const docsRes = await getDocumentsByVehicleId(vehicleData.id)
+      setDocuments(docsRes.data)
+      setSearched(true)
+    } catch (err) {
+      setDocuments([])
+      setVehicle(null)
+      setSearched(true)
+      toast.error('Vehicle not found in our records')
+    } finally {
+      setLoading(false)
+    }
+  }
 
+  const getDocStatus = (type) => {
+    const doc = documents.find(d => d.documentType === type)
+    if (!doc) return { status: 'pending', label: 'Not submitted', tick: '—' }
+    if (doc.status === 'VERIFIED') return { status: 'verified', label: 'Verified', tick: '✓' }
+    if (doc.status === 'EXPIRED') return { status: 'expired', label: 'Expired', tick: '✗' }
+    return { status: 'pending', label: 'Pending review', tick: '⏳' }
+  }
 
-try {
-  const vehicleRes = await getVehicleByPlateNumber(plateNumber.toUpperCase())
+  const verifiedCount = documentTypes.filter(d => getDocStatus(d.type).status === 'verified').length
 
-  const vehicleData = vehicleRes.data
-  setVehicle(vehicleData) 
+  return (
+    <Layout role="DRIVER">
+      <div className="content-wrapper">
+        <header style={{ marginBottom: '2rem' }}>
+          <h1 style={{ fontSize: '1.75rem', fontWeight: 700, color: 'var(--text-main)' }}>
+            Welcome, {user?.firstName}
+          </h1>
+          <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem' }}>
+            RoadCheck Nigeria • Secure Document Hub
+          </p>
+        </header>
 
-  const docsRes = await getDocumentsByVehicleId(vehicleData.id)
-  setDocuments(docsRes.data)
-
-  setSearched(true)
-} catch (err) {
-  setError('Vehicle not found or no documents available')
-  setDocuments([])
-  setVehicle(null)
-  setSearched(true)
-} finally {
-  setLoading(false)
-}
-
-
-}
-
-const getDocStatus = (type) => {
-const doc = documents.find(d => d.documentType === type)
-
-
-if (!doc) return { status: 'pending', label: 'Not submitted', tick: '—' }
-if (doc.status === 'VERIFIED') return { status: 'verified', label: 'Verified', tick: '✓' }
-if (doc.status === 'EXPIRED') return { status: 'expired', label: 'Expired', tick: '✗' }
-
-return { status: 'pending', label: 'Pending review', tick: '⏳' }
-
-
-}
-
-const verifiedCount = documentTypes.filter(
-d => getDocStatus(d.type).status === 'verified'
-).length
-
-return ( <div className="dashboard">
-
-
-  <header className="dashboard-header">
-    <div className="logo-container">
-        <img src={logo} alt="Company Logo" className="logo" />
-      </div>
-    
-    <div className="header-logo">
-      reVerify
-      <span>Road Document System</span>
-      <small className="welcome-text">
-        Welcome, {user?.firstName}
-      </small>
-    </div>
-
-    <nav className="nav-links">
-      <NavLink to="/register-vehicle">Register Vehicle</NavLink>
-      <Link to="/violations">Violations</Link>
-      <Link to="/laws">Laws</Link>
-    </nav>
-
-    <button className="btn-logout" onClick={handleLogout}>
-      Sign Out
-    </button>
-  </header>
-
-  <div className="dashboard-body">
-
-    <h2 className="dashboard-heading">Verification Status</h2>
-    <p className="dashboard-sub">
-      Enter a plate number to check document status
-    </p>
-
-    <form className="search-form" onSubmit={handleSearch}>
-      <input
-        className="search-input"
-        placeholder="Enter plate number"
-        value={plateNumber}
-        onChange={(e) => setPlateNumber(e.target.value)}
-        required
-      />
-      <button className="btn-search" type="submit" disabled={loading}>
-        {loading ? 'Checking...' : 'Verify'}
-      </button>
-    </form>
-
-    {error && <div className="search-error">{error}</div>}
-
-    {searched && vehicle && (
-      <>
-        {/* ✅ VEHICLE INFO */}
-        <div className="vehicle-info">
-          <h3>{vehicle.plateNumber}</h3>
-          <p>{vehicle.manufacturer} {vehicle.model} ({vehicle.year})</p>
+        {/* QUICK STATS */}
+        <div className="stats-grid">
+          <div className="stat-card">
+            <div className="stat-value">{verifiedCount}</div>
+            <div className="stat-label">Verified Documents</div>
+          </div>
+          <div className="stat-card">
+            <div className="stat-value">0</div>
+            <div className="stat-label">Registered Vehicles</div>
+          </div>
+          <div className="stat-card">
+            <div className="stat-value">0</div>
+            <div className="stat-label">Active Violations</div>
+          </div>
         </div>
 
-        {/* ✅ ADD DOCUMENT BUTTON */}
-        <div style={{ marginBottom: '20px' }}>
-          <button
-            className="btn-primary"
-            onClick={() =>
-              navigate('/add-document', { state: { vehicleId: vehicle.id } })
-            }
-          >
-            + Add Document
-          </button>
-        </div>
+        {/* SEARCH PANEL */}
+        <section className="search-panel" style={{ background: 'var(--bg-card)', border: '1px solid var(--border-light)' }}>
+          <div className="search-panel-content">
+            <div className="search-header">
+              <h3>Quick Verification</h3>
+              <p className="text-secondary" style={{ fontSize: '0.85rem' }}>Check compliance status for any of your registered vehicles.</p>
+            </div>
+            <form className="search-box" onSubmit={handleSearch}>
+              <input
+                className="premium-input"
+                placeholder="e.g. ABC-123-XY"
+                value={plateNumber}
+                onChange={(e) => setPlateNumber(e.target.value)}
+                required
+              />
+              <button className="premium-btn" type="submit" disabled={loading}>
+                {loading ? '...' : 'Verify Status'}
+              </button>
+            </form>
+          </div>
+        </section>
 
-        {/* DOCUMENT GRID */}
-        <div className="docs-grid">
-          {documentTypes.map((doc) => {
-            const status = getDocStatus(doc.type)
-
-            return (
-              <div key={doc.type} className={`doc-card ${status.status}`}>
-                <div className="doc-card-top">
-                  <span className="doc-icon">{doc.icon}</span>
-                  <span className={`doc-badge ${status.status}`}>
-                    {status.status.toUpperCase()}
-                  </span>
-                </div>
-
-                <p className="doc-label">{doc.label}</p>
-
-                <p className="doc-status-text">
-                  {status.tick} {status.label}
-                </p>
+        {searched && vehicle ? (
+          <div style={{ animation: 'slideUp 0.5s ease-out' }}>
+            <div className="section-title" style={{ marginBottom: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
+              <div>
+                <h2>{vehicle.plateNumber}</h2>
+                <p className="text-secondary">{vehicle.make} {vehicle.model} • {vehicle.color}</p>
               </div>
-            )
-          })}
-        </div>
+              <button 
+                className="premium-btn" 
+                style={{ padding: '8px 16px', fontSize: '0.8rem', minHeight: 'auto' }}
+                onClick={() => navigate('/add-document', { state: { vehicleId: vehicle.id } })}
+              >
+                + Add Document
+              </button>
+            </div>
 
-        {/* SUMMARY */}
-        <div className="summary-box">
-          <div className="summary-left">
-            <h3>
-              {verifiedCount === 5 ? 'All Clear' : 'Incomplete'}
-            </h3>
-
-            <p>
-              {verifiedCount === 5
-                ? 'All documents verified. Present to officer.'
-                : `${5 - verifiedCount} document${5 - verifiedCount > 1 ? 's' : ''} missing or unverified`}
-            </p>
+            <div className="doc-premium-grid">
+              {documentTypes.map((doc) => {
+                const status = getDocStatus(doc.type)
+                return (
+                  <div key={doc.type} className="premium-card">
+                    <div className="card-icon">{doc.icon}</div>
+                    <div className="card-title">{doc.label}</div>
+                    <div className={`card-status ${status.status}`}>
+                      {status.label}
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
           </div>
-
-          <div
-            className={`summary-score ${
-              verifiedCount === 0
-                ? 'none'
-                : verifiedCount < 5
-                ? 'incomplete'
-                : ''
-            }`}
-          >
-            {verifiedCount}/5
+        ) : searched && (
+          <div className="stat-card" style={{ textAlign: 'center', padding: '3rem' }}>
+            <h3>Vehicle Not Found</h3>
+            <p className="text-secondary">No vehicle found with plate number "{plateNumber}".</p>
+            <button className="premium-btn" style={{ marginTop: '1.5rem', width: 'auto', marginInline: 'auto' }} onClick={() => navigate('/register-vehicle')}>
+              Register Vehicle
+            </button>
           </div>
-        </div>
-      </>
-    )}
+        )}
 
-  </div>
-
-  <footer className="footer">
-    <p>© 2026 reVerify • Road Safety Awareness System</p>
-  </footer>
-
-</div>
-
-)
+        {!searched && (
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1.5rem', marginTop: '1rem' }}>
+            <div className="stat-card">
+              <h3>Road Safety Tips</h3>
+              <ul style={{ listStyle: 'none', marginTop: '1rem', padding: 0 }}>
+                <li style={{ marginBottom: '10px' }}>✅ Keep your digital documents accessible.</li>
+                <li style={{ marginBottom: '10px' }}>✅ Check insurance validity before long trips.</li>
+                <li style={{ marginBottom: '10px' }}>✅ Report any road safety violations.</li>
+              </ul>
+            </div>
+            <div className="stat-card" style={{ background: 'var(--accent-green-soft)', borderColor: 'var(--accent-green)' }}>
+              <h3>Latest Regulation</h3>
+              <p className="text-secondary" style={{ marginTop: '1rem', fontSize: '0.9rem' }}>
+                Federal Ministry of Transport has updated the Proof of Ownership requirements.
+              </p>
+              <button className="premium-btn" style={{ marginTop: '1rem', background: 'var(--text-main)', minHeight: '36px' }} onClick={() => navigate('/laws')}>
+                Read Update
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+    </Layout>
+  )
 }

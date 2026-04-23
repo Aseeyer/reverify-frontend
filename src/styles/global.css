@@ -1,26 +1,31 @@
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
 
 :root {
-  --bg-primary: #151a07;
-  --bg-secondary: #0f1923;
-  --bg-card: #111c2d;
-  --bg-card-hover: #162235;
-  --accent-green: #00e676;
-  --accent-green-dim: #00c853;
-  --accent-green-glow: rgba(0, 230, 118, 0.15);
-  --accent-red: #ff4d4d;
-  --accent-yellow: #ffc107;
-  --text-primary: #e8f0fe;
-  --text-secondary: #7a8fa6;
-  --text-muted: #3d5166;
-  --border: #1a2d42;
-  --border-accent: #00e676;
-  --shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-  --shadow-green: 0 0 24px rgba(0, 230, 118, 0.2);
-  --font-main: 'Outfit', sans-serif;
-  --font-mono: 'DM Mono', monospace;
-  --radius: 12px;
+  /* Global Design Tokens - RoadCheck Nigeria */
+  --accent-green: #064e3b;
+  --accent-green-dim: #065f46;
+  --accent-green-glow: rgba(6, 78, 59, 0.25);
+  
+  --text-main: #2d3a2c;
+  --text-secondary: #4a5d48;
+  --text-muted: #6b7c6a;
+  
+  --border: #e2e8f0;
+  --bg-primary: #ffffff;
+  --bg-body: #f8fafc;
+  
+  --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
   --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 20px;
+
+  --font-main: 'Outfit', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+
+  font-family: var(--font-main);
+  background-color: var(--bg-body);
+  color: var(--text-main);
+  -webkit-font-smoothing: antialiased;
 }
 
 *, *::before, *::after {
@@ -31,18 +36,14 @@
 
 body {
   font-family: var(--font-main);
-  /* background-color: var(--bg-primary); */
-  color: var(--text-primary);
+  background-color: var(--bg-body);
+  color: var(--text-main);
   min-height: 100vh;
-  -webkit-font-smoothing: antialiased;
+}
 
-  background-image:
-  linear-gradient(rgba(21, 26, 7, 0.82), rgba(21, 26, 7, 0.82)),
-  url('https://images.pexels.com/photos/7715090/pexels-photo-7715090.jpeg?auto=compress&cs=tinysrgb&w=1920');
-     background-size: cover;
-     background-position: center top;
-     background-attachment: fixed;
-     background-repeat: no-repeat;
+#root {
+  width: 100%;
+  min-height: 100vh;
 }
 
 button {
@@ -50,15 +51,60 @@ button {
   cursor: pointer;
 }
 
-input {
+input, select, textarea {
   font-family: var(--font-main);
 }
 
 a {
-  color: var(--accent-green);
+  color: var(--text-main);
   text-decoration: none;
+  font-weight: 600;
 }
 
 a:hover {
-  text-decoration: underline;
+  color: var(--accent-green-dim);
+}
+
+/* GLOBAL LOADER */
+.global-loader-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  backdrop-filter: blur(4px);
+}
+
+.loader-spinner {
+  width: 50px;
+  height: 50px;
+  border: 4px solid var(--accent-green-glow);
+  border-top: 4px solid var(--accent-green);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Scrollbar Styling */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--accent-green);
+  border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--accent-green-dim);
 }
